@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="weather"
+            type="com.example.stormy.CurrentWeather" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#0073D2"
+        tools:context=".MainActivity">
+
+        <TextView
+            android:id="@+id/temperatureValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(Math.round(weather.temperature)), default=`100`}"
+            android:textColor="#FFFFFF"
+            android:textSize="150sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/degreeImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="35dp"
+            android:contentDescription="@string/degree_image"
+            app:layout_constraintStart_toEndOf="@+id/temperatureValue"
+            app:layout_constraintTop_toTopOf="@+id/temperatureValue"
+            app:srcCompat="@drawable/degree" />
+
+        <TextView
+            android:id="@+id/timeValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{`At ` + String.valueOf(weather.formattedTime) + ` it will be`, default=`At 5:00 PM it will be`}"
+            android:textColor="#80FFFFFF"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@+id/temperatureValue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/locationValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:text="@string/los_angeles_ca"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/timeValue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/iconImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/weather_icon"
+            app:layout_constraintBottom_toBottomOf="@+id/locationValue"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/cloudy_night" />
+
+        <TextView
+            android:id="@+id/precipLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/rain_snow"
+            android:textColor="#80FFFFFF"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/temperatureValue" />
+
+        <TextView
+            android:id="@+id/precipValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(Math.round(weather.precipChance * 100)) + ` %`, default=`50%`}"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toEndOf="@+id/precipLabel"
+            app:layout_constraintStart_toStartOf="@+id/precipLabel"
+            app:layout_constraintTop_toBottomOf="@+id/precipLabel" />
+
+        <TextView
+            android:id="@+id/summaryValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp"
+            android:text="@{String.valueOf(weather.iconPhrase), default=`Mostly Cloudy`}"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/iconImageView"
+            app:layout_constraintStart_toEndOf="@+id/iconImageView" />
+
+        <TextView
+            android:id="@+id/accuWeatherAttribuition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/accu_weather_message"
+            android:textColor="#80FFFFFF"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/precipValue" />
+
+        <ImageView
+            android:id="@+id/accuWeatherImage"
+            android:layout_width="184dp"
+            android:layout_height="44dp"
+            android:contentDescription="@string/accuweather_logo"
+            app:layout_constraintBottom_toTopOf="@+id/locationValue"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/accu_weather_image" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/refresh_button"
+            android:onClick="refreshOnClick"
+            app:layout_constraintBottom_toTopOf="@+id/accuWeatherImage"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/refresh" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
