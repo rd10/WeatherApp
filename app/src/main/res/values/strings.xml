@@ -5,7 +5,7 @@
     <string name="error_button_ok_test">OK</string>
     <string name="network_unavailable_message">Sorry, the network is unavailable.</string>
     <string name="accu_weather_message"><a href="http://www.accuweather.com">Powered by AccuWeather</a></string>
-    <string name="location">Arvin, CA</string>
+    <string name="location">Los Angeles, CA</string>
     <string name="rain_snow">RAIN/SNOW?</string>
     <string name="degree_image">degree image</string>
     <string name="weather_icon">weather icon</string>
