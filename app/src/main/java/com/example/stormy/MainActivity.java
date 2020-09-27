@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
         currentWeather.setIconPhrase(forecast.getString("IconPhrase"));
         currentWeather.setTime(forecast.getLong("EpochDateTime"));
         currentWeather.setIcon(forecast.getInt("WeatherIcon"));
-        currentWeather.setLocationLabel("Arvin, CA");
+        currentWeather.setLocationLabel("Los Angeles, CA");
         currentWeather.setPrecipChance(forecast.getDouble("PrecipitationProbability"));
         currentWeather.setSummary(forecast.getString("MobileLink"));
         currentWeather.setTemperature(Temperature.getInt("Value"));
