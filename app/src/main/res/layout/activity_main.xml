@@ -5,14 +5,14 @@
     <data>
         <variable
             name="weather"
-            type="com.example.stormy.CurrentWeather" />
+            type="com.example.stormy.weather.Current" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#0073D2"
-        tools:context=".MainActivity">
+        android:background="#2D2F31"
+        tools:context=".ui.MainActivity">
 
         <TextView
             android:id="@+id/temperatureValue"
@@ -76,7 +76,7 @@
             android:id="@+id/precipLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="8dp"
             android:text="@string/rain_snow"
             android:textColor="#80FFFFFF"
             app:layout_constraintEnd_toEndOf="parent"
@@ -88,7 +88,8 @@
             android:id="@+id/precipValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{String.valueOf((int)Math.round(weather.precipChance)) + ` %`, default=`50%`}"
+            android:layout_marginTop="8dp"
+            android:text="@{String.valueOf(weather.precipChance) + ` %`, default=`50%`}"
             android:textColor="#FFFFFF"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="@+id/precipLabel"
@@ -111,6 +112,7 @@
             android:id="@+id/accuWeatherAttribuition"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="@string/accu_weather_message"
             android:textColor="#80FFFFFF"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -150,6 +152,24 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_begin="157dp" />
+
+        <Button
+            android:id="@+id/hourlyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="#40ffffff"
+            android:onClick="hourlyOnClick"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:text="HOURLY FORECAST"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toTopOf="@+id/accuWeatherAttribuition"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/precipValue" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

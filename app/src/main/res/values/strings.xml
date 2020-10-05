@@ -11,4 +11,10 @@
     <string name="weather_icon">weather icon</string>
     <string name="accuweather_logo">accuWeather logo</string>
     <string name="refresh_button">refresh button</string>
+    <string name="title_activity_hourly_forecast">HourlyForecastActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+
 </resources>

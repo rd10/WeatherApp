@@ -1,4 +1,4 @@
-package com.example.stormy;
+package com.example.stormy.ui;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
-import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,7 +17,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.stormy.R;
 import com.example.stormy.databinding.ActivityMainBinding;
+import com.example.stormy.weather.Current;
+import com.example.stormy.weather.Forecast;
+import com.example.stormy.weather.Hour;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -26,6 +29,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import okhttp3.Call;
@@ -37,10 +43,11 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private CurrentWeather currentWeather;
+    private Forecast forecast;
 
     private ImageView iconImageView;
-    final String locationKey = "";
+    final String locationKey = "347625";
+    private Current current;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,15 +76,16 @@ public class MainActivity extends AppCompatActivity {
 
         String apiKey = "";
         String method = "hourly";
-        String amount = "1hour";
+        String amount = "12hour";
 
-        String forecastURL = "https://dataservice.accuweather.com/forecasts/v1/" + method +"/" + amount + "/"+ locationKey +"?apikey=" + apiKey;
+        String hourlyForecastURL = "https://dataservice.accuweather.com/forecasts/v1/" + method +"/" + amount + "/"+ locationKey +"?apikey=" + apiKey;
+        String currentForecastURL = "https://dataservice.accuweather.com/currentconditions/v1/"+ locationKey + "?apikey=" + apiKey + "&language=en-us&details=true";
 
         if(isNetworkAvailable()) {
             OkHttpClient client = new OkHttpClient();
 
             Request request = new Request.Builder()
-                    .url(forecastURL)
+                    .url(currentForecastURL)
                     .build();
 
             Call call = client.newCall(request);
@@ -94,18 +102,21 @@ public class MainActivity extends AppCompatActivity {
                         //Response response = call.execute();
                         String jsonData = Objects.requireNonNull(response.body()).string();
                         Log.v(TAG, jsonData);
-                        if (response.isSuccessful()) {
-                            currentWeather = getCurrentDetails(jsonData);
 
-                            CurrentWeather displayWeather = new CurrentWeather(
-                                    currentWeather.getLocationLabel(),
-                                    currentWeather.getIcon(),
-                                    currentWeather.getTime(),
-                                    currentWeather.getTemperature(),
-                                    currentWeather.getIconPhrase(),
-                                    currentWeather.getPrecipChance(),
-                                    currentWeather.getSummary(),
-                                    currentWeather.getTimeZone()
+                        if (response.isSuccessful()) {
+                            //forecast = parseForecastData(jsonData);
+
+                            //Current current = forecast.getCurrent();
+                            current = getCurrentDetails(jsonData);
+                            Current displayWeather = new Current(
+                                    current.getLocationLabel(),
+                                    current.getIcon(),
+                                    current.getTime(),
+                                    current.getTemperature(),
+                                    current.getIconPhrase(),
+                                    current.getPrecipChance(),
+                                    current.getSummary(),
+                                    current.getTimeZone()
                             );
 
                             binding.setWeather(displayWeather);
@@ -121,11 +132,37 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });*/
 
-
                         } else {
                             alertUserAboutError(getString(R.string.error_message));
                         }
                     } catch (IOException | JSONException e) {
+                        Log.e(TAG, "Exception caught: ", e);
+                    }
+                }
+            });
+            // building second request to get hourly data from AccuWeather
+            Request request2 = new Request.Builder()
+                    .url(hourlyForecastURL)
+                    .build();
+
+            Call call2 = client.newCall(request2);
+            call2.enqueue(new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    Log.v("FAILED", "test");
+                    e.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    try {
+                        String jsonHoursData = Objects.requireNonNull(response.body()).string();
+                        Log.v(TAG, jsonHoursData);
+
+                        if (response.isSuccessful()) {
+                            forecast = parseForecastData(jsonHoursData);
+                        } else {alertUserAboutError(getString(R.string.error_message));}
+                     } catch (IOException | JSONException e) {
                         Log.e(TAG, "Exception caught: ", e);
                     }
                 }
@@ -138,29 +175,60 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private CurrentWeather getCurrentDetails(String jsonData) throws JSONException {
+    private Forecast parseForecastData(String jsonData) throws JSONException {
+        Forecast forecast = new Forecast();
+
+        forecast.setCurrent(current);
+        forecast.setHourlyForecast(getHourlyForecast(jsonData));
+
+        return forecast;
+    }
+
+    private Hour[] getHourlyForecast(String jsonData) throws JSONException {
+        JSONArray forecastArray = new JSONArray(jsonData);
+
+        Hour[] hours = new Hour[forecastArray.length()];
+
+        for(int i=0; i<forecastArray.length(); i++){
+            JSONObject jsonHour = forecastArray.getJSONObject(i);
+            JSONObject temperature = jsonHour.getJSONObject("Temperature");
+
+            Hour hour = new Hour();
+            hour.setIconPhrase(jsonHour.getString("IconPhrase"));
+            hour.setIcon(jsonHour.getInt("WeatherIcon"));
+            hour.setTemperature(temperature.getInt("Value"));
+            hour.setTime(jsonHour.getLong("EpochDateTime"));
+            hour.setTimeZone("America/Los_Angeles");
+
+            hours[i] = hour;
+        }
+        return hours;
+    }
+
+    private Current getCurrentDetails(String jsonData) throws JSONException {
         JSONArray forecastArray = new JSONArray(jsonData);
         JSONObject forecast = forecastArray.getJSONObject(0);
 
-        String time = forecast.getString("DateTime");
+        String time = forecast.getString("LocalObservationDateTime");
         Log.i(TAG, "From JSON: " + time);
 
         JSONObject Temperature = forecast.getJSONObject("Temperature");
+        JSONObject Imperial = Temperature.getJSONObject("Imperial");
 
-        CurrentWeather currentWeather = new CurrentWeather();
+        Current current = new Current();
 
-        currentWeather.setIconPhrase(forecast.getString("IconPhrase"));
-        currentWeather.setTime(forecast.getLong("EpochDateTime"));
-        currentWeather.setIcon(forecast.getInt("WeatherIcon"));
-        currentWeather.setLocationLabel("Los Angeles, CA");
-        currentWeather.setPrecipChance(forecast.getDouble("PrecipitationProbability"));
-        currentWeather.setSummary(forecast.getString("MobileLink"));
-        currentWeather.setTemperature(Temperature.getInt("Value"));
-        currentWeather.setTimeZone("America/Los_Angeles");
+        current.setIconPhrase(forecast.getString("WeatherText"));
+        current.setTime(forecast.getLong("EpochTime"));
+        current.setIcon(forecast.getInt("WeatherIcon"));
+        //current.setLocationLabel("Los Angeles, CA");
+        current.setPrecipChance(forecast.getString("PrecipitationType"));
+        current.setSummary(forecast.getString("MobileLink"));
+        current.setTemperature(Imperial.getInt("Value"));
+        current.setTimeZone("America/Los_Angeles");
 
-        Log.d(TAG, currentWeather.getFormattedTime());
+        Log.d(TAG, current.getFormattedTime());
 
-        return currentWeather;
+        return current;
     }
 
     private boolean isNetworkAvailable() {
@@ -186,6 +254,14 @@ public class MainActivity extends AppCompatActivity {
     public void refreshOnClick(View view){
         Toast.makeText(this,"Refreshing data", Toast.LENGTH_LONG).show();
         getForecast(locationKey);
+
+    }
+
+    public void hourlyOnClick(View view){
+        List<Hour> hours = Arrays.asList(forecast.getHourlyForecast());
+        Intent intent = new Intent(this, HourlyForecastActivity.class);
+        intent.putExtra("HourlyList", (Serializable) hours);
+        startActivity(intent);
 
     }
 }
